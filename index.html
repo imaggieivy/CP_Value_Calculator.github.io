@@ -10,63 +10,54 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f4f9;
             color: #333;
-            max-width: 900px;
-            margin: 20px auto;
+            max-width: 100%;
+            margin: 0 auto;
             padding: 20px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            position: relative;
         }
         h1 {
             text-align: center;
             color: #2196F3;
-            margin-bottom: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
         }
         table {
-            width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin: 20px auto; /* 將表格居中並添加上邊距 */
         }
         th, td {
             border: 1px solid #ddd;
             padding: 10px;
             text-align: center;
+            font-size: 0.9em;
         }
         th {
             background-color: #2196F3;
             color: white;
         }
         .checkbox-container {
-            position: absolute;
-            top: 10px;
-            right: 10px;
+            position: relative;
             display: flex;
+            justify-content: center;
             align-items: center;
         }
-        .checkbox-container label {
-            margin-left: 5px;
-        }
         .discount-column {
-            max-width: 60px;
-            width: 60px;
-            text-align: center;
+            width: 100px;
         }
         .discount-column input {
-            max-width: 50px;
-            width: 100%;
+            width: 80%;
             box-sizing: border-box;
-        }
-        input[type="number"] {
-            width: 80px;
             padding: 5px;
-            margin-left: 10px;
+            margin: 0 auto;
+            display: block;
         }
-        #drawSettings {
-            display: none; /* 默认隐藏 */
+        #globalYenToNtRate {
+            max-width: 80px;
+            margin-left: 10px;
         }
         .toggle-button {
             margin-top: 20px;
-            display: block;
             text-align: center;
             padding: 10px;
             background-color: #2196F3;
@@ -74,9 +65,30 @@
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            display: block; /* 保證按鈕是塊級元素 */
+            margin: 20px auto; /* 將按鈕居中 */
         }
         .toggle-button:hover {
             background-color: #1976D2;
+        }
+        /* 桌面設備樣式 */
+        @media (min-width: 601px) {
+            table, .toggle-button {
+                width: 80%; /* 大螢幕時將寬度設為80% */
+            }
+        }
+        /* 小螢幕設備的響應式設計調整 */
+        @media (max-width: 600px) {
+            th, td {
+                font-size: 0.7em;
+                padding: 8px;
+            }
+            .toggle-button {
+                padding: 8px;
+            }
+            table, .toggle-button {
+                width: 100%; /* 小螢幕時寬度設為100% */
+            }
         }
     </style>
 </head>
@@ -93,7 +105,7 @@
         <th rowspan="2">台幣</th>
         <th rowspan="2">日幣</th>
         <th rowspan="2">日幣轉台幣</th>
-        <th rowspan="2" class="discount-column">折價後</th>
+        <th rowspan="2">折價後</th>
         <th colspan="3">一顆石頭價格</th>
     </tr>
     <tr>
@@ -103,17 +115,15 @@
     </tr>
     </thead>
     <tbody id="stoneTable">
-        <!-- 数据行会通过JS插入 -->
+        <!-- 資料行會透過JS插入 -->
     </tbody>
 </table>
 <div style="margin-top: 20px; text-align: center;">
     <label for="globalYenToNtRate">請輸入日幣轉台幣匯率:</label>
     <input type="number" value="0.2" step="0.01" id="globalYenToNtRate" oninput="calculatePrices()">
 </div>
-<!-- 控制显示和隐藏的按钮 -->
 <button class="toggle-button" onclick="toggleDrawSettings()">顯示抽數價格</button>
-<!-- 抽數和價格信息 -->
-<div id="drawSettings">
+<div id="drawSettings" style="display: none;">
     <table>
         <thead>
         <tr>
@@ -127,7 +137,6 @@
         </tr>
         </thead>
         <tbody id="xDrawPriceTable">
-            <!-- x抽價格行将通过JS插入 -->
         </tbody>
     </table>
     <div style="margin-top: 20px; text-align: center;">
@@ -144,8 +153,7 @@
         { stoneCount: 300, ntPrice: 170, yenPrice: 610 },
         { stoneCount: 60, ntPrice: 33, yenPrice: 120 }
     ];
-
-    // 初始化表格数据
+    // 初始化表格數據
     function initTable() {
         const tableBody = document.getElementById('stoneTable');
         tableBody.innerHTML = ''; // 清空表格內容
@@ -163,38 +171,37 @@
             `;
             tableBody.appendChild(row);
         });
-        calculatePrices(); // 初始化时计算价格
+        calculatePrices(); // 初始化時計算價格
     }
-
-    // 计算每行的数据
+    // 計算每一行的數據
     function calculatePrices() {
         const exchangeRate = parseFloat(document.getElementById('globalYenToNtRate').value) || 0;
-        const drawCount = parseInt(document.getElementById('drawCount').value) || 10; // 获取自定义的抽数
-        document.getElementById('drawPriceHeader').textContent = `${drawCount}抽價格`; // 更新表头
+        const drawCount = parseInt(document.getElementById('drawCount').value) || 10; // 取得自定義的抽數
+        document.getElementById('drawPriceHeader').textContent = `${drawCount}抽價格`; // 更新表頭
         
         const xDrawPriceTableBody = document.getElementById('xDrawPriceTable');
-        xDrawPriceTableBody.innerHTML = ''; // 清空价格表格内容
+        xDrawPriceTableBody.innerHTML = ''; // 清空價格表格內容
         stoneData.forEach((data, index) => {
             let stoneCount = data.stoneCount;
             const ntPrice = data.ntPrice;
             const yenPrice = data.yenPrice;
             if (document.getElementById('doubleStonesCheckbox').checked) {
-                stoneCount *= 2; // 如果选择双倍，则石头数量翻倍
+                stoneCount *= 2; // 如果選擇雙倍則石頭數量翻倍
             }
             const discountPrice = parseFloat(document.getElementById(`discountPrice-${index}`).value) || 0;
             const yenToNt = Math.round(yenPrice * exchangeRate);
             const ntPerStone = ntPrice / stoneCount;
             const yenPerStone = yenToNt / stoneCount;
             const discountPerStone = discountPrice / stoneCount || 0;
-            // 更新一顆石頭價格表格中的计算结果
+            // 更新一顆石頭價格表格中的計算結果
             document.getElementById(`stoneCount-${index}`).textContent = stoneCount;
             document.getElementById(`yenToNt-${index}`).textContent = yenToNt;
             document.getElementById(`ntPerStone-${index}`).textContent = ntPerStone.toFixed(3);
             document.getElementById(`yenPerStone-${index}`).textContent = yenPerStone.toFixed(3);
             document.getElementById(`discountPerStone-${index}`).textContent = discountPerStone.toFixed(3);
             
-            // 计算 x 抽價格
-            const requiredStones = drawCount * 160; // 根据输入的抽数动态计算所需的总石头数
+            // 計算 x 抽價格
+            const requiredStones = drawCount * 160; // 根據輸入的抽數動態計算所需的總石頭數
             const xDrawNtPrice = Math.round(ntPerStone * requiredStones);
             const xDrawYenPrice = Math.round(yenPerStone * requiredStones);
             const xDrawDiscountPrice = Math.round(discountPerStone * requiredStones);
@@ -209,13 +216,11 @@
             xDrawPriceTableBody.appendChild(xDrawRow);
         });
     }
-
-    // 切换双倍石头属性
+    // 切換雙倍石頭屬性
     function toggleDoubleStones() {
         calculatePrices();
     }
-
-    // 控制抽數设置的显示和隐藏
+    // 控制抽數設置的顯示和隱藏
     function toggleDrawSettings() {
         const drawSettings = document.getElementById('drawSettings');
         const button = document.querySelector('.toggle-button');
@@ -223,11 +228,8 @@
         drawSettings.style.display = isHidden ? 'block' : 'none';
         button.textContent = isHidden ? '隱藏抽數價格' : '顯示抽數價格';
     }
-
     // 初始化表格
     initTable();
 </script>
 </body>
 </html>
-
-
